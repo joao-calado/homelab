@@ -1,0 +1,1 @@
+# IP estático, power save, driver rtl8723be, offloads, conntrack
