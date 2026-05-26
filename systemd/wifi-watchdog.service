@@ -1,0 +1,7 @@
+[Unit]
+Description=Watchdog de Wi-Fi – recicla conexão se o gateway não responder
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wifi-watchdog.sh
+User=root
