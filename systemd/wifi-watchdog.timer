@@ -1,0 +1,10 @@
+[Unit]
+Description=Dispara o wifi-watchdog a cada 60s
+
+[Timer]
+OnBootSec=60s
+OnUnitActiveSec=60s
+Unit=wifi-watchdog.service
+
+[Install]
+WantedBy=timers.target
