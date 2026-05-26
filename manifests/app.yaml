@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-teste
+  template:
+    metadata:
+      labels:
+        app: nginx-teste
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "<h1>Respondido pelo Pod: $MY_POD_NAME</h1>" > /usr/share/nginx/html/index.html
+            cat > /tmp/default.conf.template <<'EOF'
+            server {
+                listen       80;
+                server_name  localhost;
+                location / {
+                    root   /usr/share/nginx/html;
+                    index  index.html index.htm;
+                    add_header Cache-Control "no-cache, no-store, must-revalidate";
+                    add_header Pragma "no-cache";
+                    add_header Expires "0";
+                    add_header X-Pod-Name "__POD_NAME__";
+                }
+            }
+            EOF
+            sed "s/__POD_NAME__/$MY_POD_NAME/" /tmp/default.conf.template > /etc/nginx/conf.d/default.conf
+            nginx -g 'daemon off;'
+        resources:
+          requests:
+            cpu: "300m"
+            memory: "512Mi"
+          limits:
+            cpu: "300m"
+            memory: "512Mi"
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  selector:
+    app: nginx-teste
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+spec:
+  rules:
+  - host: nginx.192.168.1.200.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 80
