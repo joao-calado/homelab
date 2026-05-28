@@ -143,12 +143,14 @@ sudo systemctl status wifi-watchdog.timer
 ```sh
 sudo systemctl list-timers | grep wifi
 ```
+![alt text](../assets/05-watchdog-wifi/saida-timer.png)
 
 3. Acompanhar logs do watchdog em tempo real:
 
 ```sh
 sudo journalctl -t wifi-watchdog -f
 ```
+![alt text](../assets/05-watchdog-wifi/saida-log-timer.png)
 
 Exemplo de saída quando ocorre uma falha:
 
@@ -174,6 +176,27 @@ Descrição:
 disable --now: Para o timer e impede que ele inicie no boot.
 rm: Remove os arquivos de serviço e timer.
 daemon-reload: Limpa o cache do systemd.
+```
+
+---
+
+## 5.7. Fluxograma da configuração do Wi-Fi e watchdog
+```mermaid
+flowchart TD
+    A[Início] --> B[Configurar IP estático via nmcli]
+    B --> C{"iwconfig mostra Power Management:off?"}
+    C -->|Não| D[Desativar power saving com iwconfig power off]
+    D --> C
+    C -->|Sim| E{"Driver é Realtek rtl8723be?"}
+    E -->|Sim| F[Adicionar parâmetros fwlps=0 ips=0 swenc=1]
+    F --> G[Recarregar módulo]
+    E -->|Não| H[Watchdog Wi-Fi]
+    G --> H
+    H --> I[Script verifica gateway a cada 60s]
+    I --> J{"Ping 192.168.1.1 ok?"}
+    J -->|Sim| I
+    J -->|Não| K[nmcli connection down/up]
+    K --> I
 ```
 
 ---

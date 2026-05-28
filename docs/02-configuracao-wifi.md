@@ -36,6 +36,7 @@ O power saving pode desligar partes da placa Wi-Fi quando ociosa, causando falha
 
 ```sh
 sudo iwconfig wlp3s0 power off
+iwconfig wlp3s0
 ```
 
 2. Descrição:
@@ -44,19 +45,8 @@ sudo iwconfig wlp3s0 power off
 Desativa o gerenciamento de energia (power management) da sua interface Wi-Fi. O efeito é imediato. Para verificar se a configuração foi aplicada, execute (substitua wlp3s0):
 ```
 
-```sh
-iwconfig wlp3s0
-```
-
-Exemplo de saída esperada (observe `Power Management:off` – os campos como ESSID e Access Point foram ofuscados por segurança):
-
-```text
-wlp3s0    IEEE 802.11  ESSID:"MINHA_REDE"
-          Mode:Managed  Frequency:2.437 GHz  Access Point: XX:XX:XX:XX:XX:XX
-          Bit Rate=72.2 Mb/s   Tx-Power=20 dBm
-          Power Management:off
-          ...
-```
+3. Saída:
+![alt text](../assets/02-configuracao-wifi/saida-iwconfig.png)
 
 **Importante:** Essa configuração é volátil (será perdida após reinicialização). Para torná-la persistente, crie um script em `/etc/network/if-up.d/` ou uma regra udev, mas o foco aqui é desativar manualmente para testes imediatos.
 

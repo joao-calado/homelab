@@ -27,29 +27,29 @@ nmcli connection down/up: Reinicia a conexão para aplicar a mudança.
 
 **Verifique**:
 
+1. Comando:
+
 ```sh
 resolvectl status wlp3s0   # substitua wlp3s0 pela sua interface Wi-Fi
 ```
 
-A saída deve mostrar apenas `192.168.1.1` em `DNS Servers`.
+2. Saída:
+![alt text](../assets/04-ajustes-finos/saida-resolvectl.png)
+
+> A saída deve mostrar apenas `192.168.1.1` em `DNS Servers`.
 
 **Teste do DNS interno do cluster**:
+
+1. Comando:
 
 ```sh
 kubectl run -it --rm test-dns --image=busybox:1.28 --restart=Never -- nslookup kubernetes.default
 ```
 
-Saída esperada (exemplo):
+2. Saída:
+![alt text](../assets/04-ajustes-finos/saida-test-dns.png)
 
-```text
-Server:    10.43.0.10
-Address 1: 10.43.0.10 kube-dns.kube-system.svc.cluster.local
-
-Name:      kubernetes.default
-Address 1: 10.43.0.1 kubernetes.default.svc.cluster.local
-```
-
-Se o comando falhar ou não encontrar o servidor `10.43.0.10`, repita os passos de configuração do DNS do host.
+> Se o comando falhar ou não encontrar o servidor `10.43.0.10`, repita os passos de configuração do DNS do host.
 
 ---
 

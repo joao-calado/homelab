@@ -107,32 +107,17 @@ Cria ou atualiza os recursos definidos no arquivo YAML. O Kubernetes iniciará o
 kubectl get deploy,svc,ingress -o wide
 ```
 
-Saída esperada (exemplo):
+2. Saída:
+![alt text](../assets/06-primeira-aplicacao/saida-recursos.png)
 
-```text
-NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/web-server   2/2     2            2           10s
-
-NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-service/web-service   ClusterIP   10.43.123.45    <none>        80/TCP    10s
-
-NAME                                   CLASS    HOSTS                           ADDRESS         PORTS   AGE
-ingress.networking.k8s.io/web-ingress   <none>   nginx.192.168.1.200.nip.io     192.168.1.200   80      10s
-```
-
-2. Ver os pods em execução:
+3. Ver os pods em execução:
 
 ```sh
 kubectl get pods -l app=nginx-teste
 ```
 
-Saída esperada:
-
-```text
-NAME                           READY   STATUS    RESTARTS   AGE
-web-server-xxxxx-yyyyy         1/1     Running   0          20s
-web-server-xxxxx-zzzzz         1/1     Running   0          20s
-```
+4. Saída:
+![alt text](../assets/06-primeira-aplicacao/saida-pods.png)
 
 ---
 
@@ -166,11 +151,16 @@ curl -v http://nginx.192.168.1.200.nip.io
 O Ingress roteará a requisição para o Service web-service, que por sua vez encaminhará para um dos pods. A resposta será a página padrão do Nginx. O cabeçalho de resposta não inclui o nome do pod (isso será adicionado no próximo passo).
 ```
 
+3. Saída:
+![alt text](../assets/06-primeira-aplicacao/saida-curl.png)
+
 ---
 
 ## 6.6. Acessar pelo navegador
 
 Abra o navegador e acesse `http://nginx.192.168.1.200.nip.io`. Atualize a página várias vezes. Devido ao keep‑alive (HTTP persistente), o navegador pode mostrar sempre o mesmo conteúdo, não evidenciando o balanceamento. O próximo passo resolve essa limitação com cabeçalhos anti‑cache e a inclusão do nome do pod na resposta.
+
+![alt text](../assets/06-primeira-aplicacao/saida-navegador.png)
 
 ---
 
