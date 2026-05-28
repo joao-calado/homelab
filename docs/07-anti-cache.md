@@ -188,6 +188,32 @@ Cada atualização forçada (ou uma nova aba) deve trazer um pod diferente, conf
 
 ---
 
+## 7.5. Diagrama de sequência do anti-cache (mostrando keep-alive vs no-cache)
+```mermaid
+sequenceDiagram
+    participant N as Navegador
+    participant T as Traefik
+    participant P1 as Pod web-server-1
+    participant P2 as Pod web-server-2
+
+    Note over N,P2: Sem anti-cache (keep-alive)
+    N->>T: GET / (primeira vez)
+    T->>P1: encaminha
+    P1-->>N: Resposta (conexão fica aberta)
+    N->>T: GET / (mesma conexão)
+    T->>P1: mesma conexão TCP → sempre o mesmo pod
+
+    Note over N,P2: Com anti-cache (cabeçalhos forçam nova conexão)
+    N->>T: GET / (com Cache-Control: no-cache)
+    T->>P2: encaminha (balanceador escolhe)
+    P2-->>N: X-Pod-Name: web-server-2
+    N->>T: GET / (nova requisição, nova conexão)
+    T->>P1: escolhe outro pod
+    P1-->>N: X-Pod-Name: web-server-1
+```
+
+---
+
 ## Observação
 
 ```text

@@ -1,5 +1,7 @@
 # 🏠 HomeLab – Transforme um notebook antigo em um cluster Kubernetes com K3s
 
+![GitHub last commit](https://img.shields.io/github/last-commit/joao-calado/homelab)
+![GitHub repo size](https://img.shields.io/github/repo-size/joao-calado/homelab)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![K3s version](https://img.shields.io/badge/K3s-v1.32+-orange)](https://k3s.io)
 
@@ -21,6 +23,11 @@ Este repositório documenta **passo a passo** a construção de um laboratório 
 - Pelo menos **4 vCPUs** e **8 GB de RAM** (recomendado).
 - Conexão com o roteador local (IP estático configurável).
 
+<details>
+  <summary>🖼️ Hardware do notebook (clique para expandir)</summary>
+  <img src="./assets/pre-requisitos.jpeg" alt="Notebook com Debian" width="600">
+</details>
+
 ---
 
 ## 🗂️ Índice da documentação
@@ -35,6 +42,11 @@ Este repositório documenta **passo a passo** a construção de um laboratório 
 8. [Monitoramento](docs/08-monitoramento.md) – comandos `kubectl` essenciais.
 9. [Manutenção do cluster](docs/09-manutencao.md) – escala, restart, limpeza.
 10. [Estado atual e diagnóstico](docs/10-status-atual.md) – fluxo de requisição e troubleshooting.
+
+---
+
+## 🧠 Mapa mental do que você vai aprender
+![Mapa mental do aprendizado](assets/mapa-mental-aprendizado.jpg "Clique para ampliar – visão geral do que você vai construir")
 
 ---
 
@@ -56,7 +68,7 @@ kubectl apply -f manifests/app.yaml
 
 ---
 
-## 🧠 Solução de problemas em 4 passos
+## ⚙️ Solução de problemas em 4 passos
 
 1. Verifique a conectividade Wi-Fi:
    ```bash
@@ -74,6 +86,13 @@ kubectl apply -f manifests/app.yaml
    ```bash
    kubectl get pods -A
    ```
+
+---
+
+## 🔧 Scripts de utilidade
+
+- **`scripts/preflight.sh`** – verifica se o sistema atende aos requisitos antes de iniciar o laboratório (execute como `sudo`).
+- **`scripts/check-homelab.sh`** – diagnóstico rápido do cluster após a instalação.
 
 ---
 

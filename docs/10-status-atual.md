@@ -179,6 +179,21 @@ Se muitos pods estiverem em `Pending` com eventos de `Insufficient memory` ou `I
 
 ---
 
+## 10.6. Arquitetura do cluster K3s (fluxo da requisição)
+```mermaid
+graph LR
+    User((Usuário)) -->|HTTP GET nginx.192.168.1.200.nip.io| LB["svclb-traefik\n(pod, porta 80/443)"]
+    LB -->|encaminha| Traefik["Traefik pod\n(Ingress controller)"]
+    Traefik -->|lê regras do Ingress| Ingress[Ingress web-ingress]
+    Ingress -->|roteia para| SVC["Service web-service\n(ClusterIP)"]
+    SVC -->|balanceamento round-robin| Pod1[Pod web-server-1]
+    SVC -->|balanceamento round-robin| Pod2[Pod web-server-2]
+    Pod1 -->|resposta com cabeçalhos anti-cache| User
+    Pod2 -->|resposta com cabeçalhos anti-cache| User
+```
+
+---
+
 ## Observação
 
 ```text

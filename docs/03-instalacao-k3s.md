@@ -67,48 +67,61 @@ Após a instalação, aguarde alguns segundos e verifique o status do nó.
 kubectl get nodes
 ```
 
-Saída esperada:
+2. Saída:
+![alt text](../assets/03-instalacao-k3s/saida-get-nodes.png)
 
-```text
-NAME          STATUS   ROLES                  AGE   VERSION
-k3s-master    Ready    control-plane,master   30s   v1.32.2+k3s1
-```
+Para ver os recursos alocáveis após as reservas:
 
-2. Para ver os recursos alocáveis após as reservas:
+1. Comando:
 
 ```sh
 kubectl get nodes -o custom-columns=NAME:.metadata.name,CPU_ALLOC:.status.allocatable.cpu,MEM_ALLOC:.status.allocatable.memory
 ```
 
-3. Detalhes completos do nó:
+2. Saída:
+![alt text](../assets/03-instalacao-k3s/saida-mem-aloc.png)
+
+Detalhes completos do nó:
+
+1. Comando:
 
 ```sh
 kubectl describe node | grep -A 8 "Allocatable"
 ```
 
+2. Saída:
+![alt text](../assets/03-instalacao-k3s/saida-det-node.png)
+
 ---
 
 ## 3.3. Verificar logs (opcional)
+
+1. Comando:
 
 ```sh
 journalctl -u k3s -f --lines=50
 ```
 
-Descrição:
+2. Descrição:
 
 ```text
 Monitora os logs do serviço K3s. Procure por mensagens de erro relacionadas a rede ou DNS.
 ```
 
+3. Saída:
+![alt text](../assets/03-instalacao-k3s/saida-journal.png)
+
 ---
 
 ## 3.4. Desinstalação (se necessário)
+
+1. Comando:
 
 ```sh
 sudo /usr/local/bin/k3s-uninstall.sh
 ```
 
-Descrição:
+2. Descrição:
 
 ```text
 Remove o K3s, contêineres, imagens e a maioria dos arquivos de configuração. A interface de rede e IP estático não são alterados.

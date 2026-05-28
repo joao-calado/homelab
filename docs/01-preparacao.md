@@ -50,6 +50,9 @@ groups joaocalado: Lista todos os grupos dos quais o usuário faz parte. Deve in
 sudo whoami: Executa o comando 'whoami' como superusuário. Se retornar 'root', o sudo está funcionando corretamente.
 ```
 
+3. Saída:
+![alt text](../assets/01-preparacao/saida-groups-sudo.png)
+
 **Segurança (remoção do sudo, se necessário):**
 
 1. Comando:
@@ -86,6 +89,9 @@ sensors-detect --auto: Detecta automaticamente os sensores disponíveis, respond
 sensors: Exibe as leituras atuais dos sensores (CPU, placa-mãe, etc.).
 ```
 
+3. Saída:
+![alt text](../assets/01-preparacao/saida-sensors.png)
+
 ---
 
 ## 1.4. Verificar recursos de CPU e RAM
@@ -108,6 +114,9 @@ RES: Memória residente (física) usada pelo processo.
 Dicas: Pressione M (maiúsculo) para ordenar por uso de memória; P para ordenar por CPU; q para sair.
 ```
 
+3. Saída:
+![alt text](../assets/01-preparacao/saida-top.png)
+
 ### Com `free` (visão rápida de RAM)
 
 1. Comando:
@@ -123,6 +132,9 @@ free -h: Exibe o uso de memória RAM e swap em formato legível (KiB, MiB, GiB).
 total: Memória RAM total instalada.
 available: Memória disponível para novos processos sem precisar usar swap (o número mais importante para avaliar se o sistema tem recursos suficientes).
 ```
+
+3. Saída:
+![alt text](../assets/01-preparacao/saida-free-h.png)
 
 ---
 
@@ -182,6 +194,9 @@ timedatectl status
 ```text
 Mostra o status do relógio do sistema, incluindo se o serviço NTP (Network Time Protocol) está ativo e se o horário está sincronizado.
 ```
+
+3. Saída:
+![alt text](../assets/01-preparacao/saida-time-date-ctl.png)
 
 Se o `NTP service` não estiver ativo, ative-o:
 
