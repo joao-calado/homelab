@@ -202,15 +202,29 @@ Este guia foi testado em um notebook com Debian 13, 4 vCPUs, 8 GB RAM e Wi-Fi Re
 
 ---
 
-## ✅ Próximo passo (encerramento)
+## 🚀 Próximos passos (em desenvolvimento)
 
-Você concluiu a configuração completa do homelab! Para continuar seus estudos como eu, explore outros componentes do Kubernetes como:
+Você concluiu a configuração completa do homelab! Aqui estão os projetos que estou desenvolvendo como próximos passos:
 
-- PersistentVolumes e PersistentVolumeClaims.
-- ConfigMaps e Secrets.
-- Horizontal Pod Autoscaler (HPA).
-- Helm charts.
+**1. Kubernetes Dashboard**  
+Adicionar o Dashboard oficial ao cluster para monitoramento visual e gestão dos recursos, acessível via HTTPS com token de longa duração.
 
-Consulte a [documentação oficial do K3s](https://docs.k3s.io) e do [Kubernetes](https://kubernetes.io/docs/home/) para aprofundar.
+**2. StockMemo – Gestor de Inventário e Ordens de Serviço**  
+Desenvolvimento de uma aplicação Ruby on Rails para pequenas oficinas (mecânicas, marcenarias, assistências técnicas), substituindo planilhas e papel.  
+- Funcionalidades: cadastro de clientes/equipamentos, controle de entrada e saída de peças (com alertas de estoque baixo), cálculo de preço com markup, histórico de ordens de serviço, geração de PDF da OS.  
+- Métricas de negócio embutidas: alertas de estoque, ordens criadas, tempo médio de reparação, taxa de conversão de orçamentos em OS.  
+- Auditoria completa de alterações no estoque (logs detalhados).
+
+**3. Pipeline CI/CD com GitHub Actions**  
+Automatizar o ciclo completo de entrega da aplicação StockMemo:  
+- *Push* no repositório → build da imagem Docker → *push* automático para o Docker Hub.  
+- Nova imagem disponível → *deploy* automático no servidor K3s local (atualização contínua da aplicação no homelab).
+
+**4. Stack de observabilidade com Prometheus, Loki e Grafana**  
+Depois que o StockMemo estiver rodando em produção, instalarei:  
+- **Prometheus** para coleta de métricas da aplicação e do cluster (uso de CPU/memória, taxa de requisições, métricas de negócio).  
+- **Loki** para centralizar e consultar logs das aplicações e do sistema (incluindo logs de auditoria do StockMemo).  
+- **Grafana** para criar dashboards unificados que combinem métricas e logs, permitindo visualizar a saúde do homelab e do StockMemo em tempo real.  
+Esse conjunto só fará sentido com a aplicação real fornecendo dados, fechando o ciclo completo de uma infraestrutura moderna e observável.
 
 **Obrigado por seguir este guia!**
