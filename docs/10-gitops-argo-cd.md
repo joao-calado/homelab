@@ -158,7 +158,7 @@ sudo chmod +x /usr/local/bin/argocd
 1. Aguardar o IngressRoute ser criado pelo bootstrap:
 
 ```sh
-kubectl wait --for=condition=ready ingressroute argocd-server -n argocd --timeout=120s
+until kubectl get ingressroute argocd-server -n argocd &>/dev/null; do sleep 3; done && echo "IngressRoute ativo"
 ```
 
 2. Obter a senha inicial:
