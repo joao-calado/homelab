@@ -3,7 +3,6 @@ kind: AppProject
 metadata:
   name: homelab
   namespace: argocd
-  description: Projeto para aplicações do homelab
 spec:
   description: Projeto para aplicações do homelab
   sourceRepos:
