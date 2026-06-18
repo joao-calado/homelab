@@ -37,7 +37,18 @@ kubectl apply --server-side -n argocd -f https://raw.githubusercontent.com/argop
 kubectl wait --for=condition=Ready pods -n argocd --all --timeout=300s
 ```
 
-Saída esperada: 7 pods no namespace `argocd` com status `Running` (application-controller, applicationset-controller, dex-server, notifications-controller, redis, repo-server, server).
+Saída esperada: número variável de pods (tipicamente 6-8) no namespace `argocd` com status `Running`.
+
+4. Verificar a versão instalada:
+
+```sh
+kubectl -n argocd get deploy argocd-server -o jsonpath="{.spec.template.spec.containers[0].image}{'\n'}"
+```
+
+Saída esperada (exemplo):
+```text
+quay.io/argoproj/argocd:v2.14.0
+```
 
 ---
 
@@ -47,7 +58,7 @@ Saída esperada: 7 pods no namespace `argocd` com status `Running` (application-
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
-> Guarde esta senha — será usada no login via CLI (passo 10.7) e na UI.
+> Guarde esta senha — será usada no login via CLI (passo 10.6) e na UI.
 
 ---
 
@@ -69,17 +80,19 @@ cd homelab
 
 **App of Apps** é um padrão onde uma Application "pai" (root-app) aponta para um diretório contendo manifests de outras Applications "filhas". Ao sincronizar a root-app, o Argo CD cria automaticamente todas as filhas. Isso permite adicionar novas Applications fazendo apenas commit de um YAML no diretório — sem jamais precisar reaplicar o bootstrap manual.
 
-Dentro do diretório `~/homelab`, a estrutura abaixo define **4 arquivos** que o Argo CD usará para gerenciar tudo:
+> **Nota:** os arquivos abaixo já estão versionados no repositório. Ao clonar em 10.3, você já os tem disponíveis — nenhuma ação manual de criação é necessária.
+
+Dentro do diretório `~/homelab`, a estrutura abaixo define **5 arquivos** que o Argo CD usará para gerenciar tudo:
 
 ```
 homelab/
 ├── argocd/
 │   ├── applications/
 │   │   ├── argocd-ingress.yaml                   # ServersTransport + IngressRoute (Secret criado manualmente)
-│   │   ├── root-app.yaml                         # Application of Applications (bootstrap)
 │   │   └── web-server-argocd-application.yaml    # Application → manifests/ → ns default
-│   └── projects/
-│       └── homelab-project.yaml                  # Permissões (repositórios, CRDs Traefik)
+│   ├── projects/
+│   │   └── homelab-project.yaml                  # Permissões (repositórios, CRDs Traefik)
+│   └── root-app.yaml                            # Application of Applications (bootstrap)
 └── manifests/
     └── app.yaml                                  # Deployment (replicas:1) + Service + Ingress
 ```
@@ -109,7 +122,7 @@ O arquivo `argocd/applications/argocd-ingress.yaml` (versionado) contém apenas 
 
 ---
 
-### 10.4.3. Root App - App of Apps (`argocd/applications/root-app.yaml`)
+### 10.4.3. Root App - App of Apps (`argocd/root-app.yaml`)
 
 Application que gerencia todas as outras Applications na pasta `argocd/applications/`. Ela é o ponto de entrada — aplicada manualmente uma vez.
 
@@ -119,22 +132,12 @@ Application que aponta para a pasta `manifests/` no repositório e aplica os rec
 
 ---
 
-## 10.5. Fazer commit e push
-
-```sh
-git add argocd/ manifests/
-git commit -m "feat: Adiciona Argo CD com App of Apps e Ingress TLS"
-git push origin main
-```
-
----
-
-## 10.6. Fazer bootstrap da Root App
+## 10.5. Fazer bootstrap da Root App
 
 A Root App é o único recurso aplicado manualmente. Ela criará todo o resto automaticamente.
 
 ```sh
-kubectl apply -f argocd/applications/root-app.yaml
+kubectl apply -f argocd/root-app.yaml
 ```
 
 Saída esperada:
@@ -145,22 +148,22 @@ application.argoproj.io/root-app created
 
 ---
 
-## 10.7. Instalar a CLI e registrar o cluster
+## 10.6. Instalar a CLI e registrar o cluster
 
 (O IngressRoute `argocd.192.168.1.200.nip.io` já está ativo graças ao bootstrap do passo anterior.)
 
-### 10.7.1. Por que instalar a CLI?
+### 10.6.1. Por que instalar a CLI?
 
 `argocd cluster add` (via CLI) é o único jeito de conceder permissão ao Argo CD para gerenciar o cluster — a UI não tem função equivalente. O comando cria um ServiceAccount `argocd-manager` com `cluster-admin` e armazena o token no Argo CD. Sem isso, toda Application falha com `"cluster not found"` ou `"permission denied"`. A CLI também serve para diagnóstico rápido (`argocd app get`, `argocd app sync`).
 
-### 10.7.2. Instalar a CLI
+### 10.6.2. Instalar a CLI
 
 ```sh
 curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
 chmod +x /usr/local/bin/argocd
 ```
 
-### 10.7.3. Login e registrar o cluster
+### 10.6.3. Login e registrar o cluster
 
 1. Login via nip.io (sem port-forward — Ingress já ativo):
 
@@ -184,7 +187,7 @@ INFO[0000] Successfully added cluster: in-cluster
 
 ---
 
-## 10.8. Validar tudo
+## 10.7. Validar tudo
 
 1. Listar Applications (todas devem estar `Synced + Healthy`):
 
@@ -230,7 +233,7 @@ curl -H "Host: nginx.192.168.1.200.nip.io" http://192.168.1.200
 
 ---
 
-## 10.9. Migrar recursos criados manualmente para o GitOps
+## 10.8. Migrar recursos criados manualmente para o GitOps
 
 Recursos que existiam antes do Argo CD (criados com `kubectl apply -f`) precisam ser deletados. O Argo CD recriará tudo a partir do Git com self-heal.
 
@@ -256,7 +259,7 @@ kubectl get pods -l app=nginx-teste
 
 ---
 
-## 10.10. Teste GitOps end-to-end
+## 10.9. Teste GitOps end-to-end
 
 1. Editar `manifests/app.yaml` localmente, alterando `replicas: 1` para `replicas: 2`.
 2. Commitar e enviar:
@@ -281,7 +284,7 @@ web-server-xxxxx-zzzzz         1/1     Running   0          5s
 
 ---
 
-## 10.11. Diagnóstico
+## 10.10. Diagnóstico
 
 ### Pods em Pending com "Too many pods"
 
