@@ -11,6 +11,7 @@ Este repositório documenta **passo a passo** a construção de um laboratório 
 - Correção de problemas comuns de rede Wi-Fi (driver instável, DNS interno, power saving).
 - Watchdog automático para reciclar a conexão Wi-Fi quando ela trava.
 - Deployment de uma aplicação Nginx com anti‑cache no navegador e cabeçalhos de debug.
+- **GitOps com Argo CD** — migração de deploys manuais para GitOps com App of Apps, auto-sync, self-heal e UI exposta com TLS via Traefik.
 
 > 🎯 **Público-alvo:** entusiastas de infraestrutura, estudantes de Kubernetes e qualquer pessoa com um notebook sobrando que queira aprender na prática.
 
@@ -41,7 +42,8 @@ Este repositório documenta **passo a passo** a construção de um laboratório 
 7. [Anti‑cache no navegador](docs/07-anti-cache.md) – evitando cache com cabeçalhos HTTP.
 8. [Monitoramento](docs/08-monitoramento.md) – comandos `kubectl` essenciais.
 9. [Manutenção do cluster](docs/09-manutencao.md) – escala, restart, limpeza.
-10. [Estado atual e diagnóstico](docs/10-status-atual.md) – fluxo de requisição e troubleshooting.
+10. [GitOps com Argo CD](docs/10-gitops-argo-cd.md) – instalação do Argo CD, App of Apps e exposição da UI com TLS.
+11. [Estado atual e diagnóstico](docs/11-status-atual.md) – fluxo de requisição e troubleshooting.
 
 ---
 
@@ -52,16 +54,23 @@ Este repositório documenta **passo a passo** a construção de um laboratório 
 
 ## 🚀 Começo rápido (se você já tiver o cluster rodando)
 
+### Pré-Argo CD (deploy manual)
+
 ```bash
-# Clone este repositório
-git clone https://github.com/seu-usuario/homelab.git
-cd homelab
-
-# Aplique a aplicação de exemplo
+git clone https://github.com/seu-usuario/homelab.git && cd homelab
 kubectl apply -f manifests/app.yaml
+# Acesse: http://nginx.192.168.1.200.nip.io
+```
 
-# Acesse no navegador
-# http://nginx.192.168.1.200.nip.io
+### Pós-Argo CD (GitOps)
+
+Após instalar o Argo CD ([Capítulo 10](docs/10-gitops-argo-cd.md)), toda alteração é feita via Git:
+
+```bash
+git add manifests/app.yaml
+git commit -m "minha alteração"
+git push origin main
+# Argo CD sincroniza automaticamente em até 60s
 ```
 
 > **Nota:** Substitua `192.168.1.200` pelo IP do seu notebook.

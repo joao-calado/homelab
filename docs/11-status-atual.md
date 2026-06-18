@@ -1,12 +1,12 @@
-# 10. Estado atual e diagnóstico rápido
+# 11. Estado atual e diagnóstico rápido
 
-Este capítulo descreve o **estado esperado** do cluster após seguir todos os passos anteriores e fornece um roteiro de diagnóstico para quando algo falha.
+Este capítulo descreve o **estado esperado** do cluster após seguir todos os passos anteriores (incluindo a instalação do Argo CD) e fornece um roteiro de diagnóstico para quando algo falha.
 
 > **Nota:** Os endereços IP e nomes de interface aqui utilizados são exemplos (`192.168.1.200`, `wlp3s0`). Substitua pelos valores da sua própria rede.
 
 ---
 
-## 10.1. Nós e recursos alocáveis
+## 11.1. Nós e recursos alocáveis
 
 1. Comando:
 
@@ -37,12 +37,12 @@ k3s-master    1950m       5620Mi
 Descrição:
 
 ```text
-O nó está "Ready". CPU e memória alocáveis são os valores que o kubelet pode reservar para pods (total do nó menos as reservas definidas em --kubelet-arg).
+O nó está "Ready". CPU, memória e pods alocáveis são os valores que o kubelet pode reservar (total do nó menos as reservas definidas em --kubelet-arg). O limite de pods (ex.: 50) define quantos podem ser executados simultaneamente no nó.
 ```
 
 ---
 
-## 10.2. Pods do sistema (namespace `kube-system`)
+## 11.2. Pods do sistema (namespace `kube-system`)
 
 1. Comando para listar:
 
@@ -59,11 +59,26 @@ metrics-server-*: Coleta métricas de CPU/memória para kubectl top e HPA.
 svclb-traefik-*: Load balancer simples do K3s. Escuta nas portas 80 e 443 do nó e encaminha para o Traefik.
 traefik-*: Ingress controller. Lê os recursos Ingress e roteia as requisições HTTP/S para os serviços backend.
 helm-install-traefik-*: Pod temporário (Completed) que instalou o Traefik via Helm. Pode ser removido com segurança.
+
+3. Pods do Argo CD (namespace `argocd`):
+
+```sh
+kubectl get pods -n argocd
+```
+
+```text
+argocd-application-controller-*: Controlador principal. Garante que o estado do cluster corresponda ao Git (sincronização).
+argocd-applicationset-controller-*: Gera Applications a partir de templates (ApplicationSets).
+argocd-dex-server-*: Provedor de autenticação OIDC/SSO integrado. Opcional para homelab.
+argocd-notifications-controller-*: Envia notificações sobre sincronizações e mudanças de estado.
+argocd-redis-*: Cache do Argo CD (estado das Applications, sessões, repo).
+argocd-repo-server-*: Cache local do repositório Git. Clona e mantém o repositório sincronizado.
+argocd-server-*: Servidor HTTP/HTTPS (UI + API). Exposto via IngressRoute com TLS.
 ```
 
 ---
 
-## 10.3. Pods da aplicação (namespace `default`)
+## 11.3. Pods da aplicação (namespace `default`)
 
 1. Comando:
 
@@ -81,7 +96,7 @@ web-server-xxxxx-zzzzz         1/1     Running   0          1h
 
 ---
 
-## 10.4. Fluxo de uma requisição externa
+## 11.4. Fluxo de uma requisição externa
 
 ```text
 Navegador (cliente)
@@ -113,7 +128,7 @@ Navegador (cliente)
 
 ---
 
-## 10.5. Diagnóstico rápido (ordem sugerida)
+## 11.5. Diagnóstico rápido (ordem sugerida)
 
 Siga os passos abaixo para identificar a causa de problemas.
 
@@ -175,11 +190,11 @@ kubectl top nodes
 kubectl top pods -A
 ```
 
-Se muitos pods estiverem em `Pending` com eventos de `Insufficient memory` ou `Insufficient cpu`, reduza as reservas ou aumente as réplicas do cluster.
+Se muitos pods estiverem em `Pending` com eventos de `Insufficient memory`, `Insufficient cpu` ou `Too many pods`, verifique o limite de pods do nó com `kubectl describe node | grep pods`. Se o valor for igual ao número de pods existentes, aumente o `max-pods` no serviço do K3s (consulte o Capítulo 3). Reduza as reservas se for falta de CPU/memória.
 
 ---
 
-## 10.6. Arquitetura do cluster K3s (fluxo da requisição)
+## 11.6. Arquitetura do cluster K3s (fluxo da requisição)
 ```mermaid
 graph LR
     User((Usuário)) -->|HTTP GET nginx.192.168.1.200.nip.io| LB["svclb-traefik\n(pod, porta 80/443)"]
@@ -194,6 +209,44 @@ graph LR
 
 ---
 
+## 11.7. Diagnóstico do Argo CD
+
+### Applications não sincronizam
+
+```sh
+argocd app list                           # Ver status de todas as Applications
+argocd app get web-server-argocd-application     # Ver detalhes + erros
+argocd app sync web-server-argocd-application    # Forçar sincronização manual
+```
+
+### Pods do Argo CD com problema
+
+```sh
+kubectl get pods -n argocd                                   # Estado dos pods
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-server --tail=30
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller --tail=30
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-repo-server --tail=30
+```
+
+### IngressRoute do Argo CD (argocd.192.168.1.200.nip.io)
+
+```sh
+kubectl get ingressroute -n argocd         # Ver se a rota existe
+kubectl get secret argocd-tls -n argocd    # Ver se o certificado TLS existe
+kubectl logs -n kube-system -l app.kubernetes.io/name=traefik --tail=30  # Logs do Traefik
+```
+
+### Recursos do nó baixos para o Argo CD
+
+```sh
+kubectl top pods -n argocd           # Consumo atual
+kubectl top nodes                    # Recursos totais do nó
+```
+
+Se pods do Argo CD estiverem `Pending` por `Insufficient memory`, considere reduzir reservas do K3s ou aumentar recursos do nó.
+
+---
+
 ## Observação
 
 ```text
@@ -202,29 +255,20 @@ Este guia foi testado em um notebook com Debian 13, 4 vCPUs, 8 GB RAM e Wi-Fi Re
 
 ---
 
-## 🚀 Próximos passos (em desenvolvimento)
+## 🚀 Próximos passos
 
-Você concluiu a configuração completa do homelab! Aqui estão os projetos que estou desenvolvendo como próximos passos:
+Você concluiu a configuração do homelab com **GitOps via Argo CD**! Os projetos futuros incluem:
 
 **1. Kubernetes Dashboard**  
-Adicionar o Dashboard oficial ao cluster para monitoramento visual e gestão dos recursos, acessível via HTTPS com token de longa duração.
+Instalar o Dashboard oficial via Argo CD para monitoramento visual.
 
 **2. StockMemo – Gestor de Inventário e Ordens de Serviço**  
-Desenvolvimento de uma aplicação Ruby on Rails para pequenas oficinas (mecânicas, marcenarias, assistências técnicas), substituindo planilhas e papel.  
-- Funcionalidades: cadastro de clientes/equipamentos, controle de entrada e saída de peças (com alertas de estoque baixo), cálculo de preço com markup, histórico de ordens de serviço, geração de PDF da OS.  
-- Métricas de negócio embutidas: alertas de estoque, ordens criadas, tempo médio de reparação, taxa de conversão de orçamentos em OS.  
-- Auditoria completa de alterações no estoque (logs detalhados).
+Aplicação Ruby on Rails para pequenas oficinas (clientes/equipamentos, controle de peças, cálculo de markup, histórico OS, PDF, auditoria).
 
 **3. Pipeline CI/CD com GitHub Actions**  
-Automatizar o ciclo completo de entrega da aplicação StockMemo:  
-- *Push* no repositório → build da imagem Docker → *push* automático para o Docker Hub.  
-- Nova imagem disponível → *deploy* automático no servidor K3s local (atualização contínua da aplicação no homelab).
+Automação: push → build Docker → Docker Hub → deploy automático no K3s via Argo CD.
 
-**4. Stack de observabilidade com Prometheus, Loki e Grafana**  
-Depois que o StockMemo estiver rodando em produção, instalarei:  
-- **Prometheus** para coleta de métricas da aplicação e do cluster (uso de CPU/memória, taxa de requisições, métricas de negócio).  
-- **Loki** para centralizar e consultar logs das aplicações e do sistema (incluindo logs de auditoria do StockMemo).  
-- **Grafana** para criar dashboards unificados que combinem métricas e logs, permitindo visualizar a saúde do homelab e do StockMemo em tempo real.  
-Esse conjunto só fará sentido com a aplicação real fornecendo dados, fechando o ciclo completo de uma infraestrutura moderna e observável.
+**4. Stack de observabilidade (Prometheus + Loki + Grafana)**  
+Métricas do cluster, logs centralizados e dashboards unificados.
 
 **Obrigado por seguir este guia!**

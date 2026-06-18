@@ -1,6 +1,6 @@
 # 3. Instalação do K3s (master)
 
-Este capítulo cobre a instalação do K3s em modo servidor (master). A configuração inclui fixação do IP, interface Wi-Fi, backend flannel, reservas de recursos e limite de pods.
+Este capítulo cobre a instalação do K3s em modo servidor (master). A configuração inclui fixação do IP, interface Wi-Fi, backend flannel, reservas de recursos e limite de pods (ajustável).
 
 > **Nota:** Substitua `192.168.1.200` pelo seu IP estático e `wlp3s0` pelo nome da sua interface Wi-Fi (descoberto com `ip link show` ou `iwconfig`). Ajuste também o nome da conexão Wi-Fi se necessário.
 
@@ -20,7 +20,7 @@ curl -sfL https://get.k3s.io | sh -s - server \
   --node-name=k3s-master \
   --kubelet-arg="system-reserved=cpu=1500m,memory=2Gi" \
   --kubelet-arg="kube-reserved=cpu=500m,memory=512Mi" \
-  --kubelet-arg="max-pods=10" \
+  --kubelet-arg="max-pods=50" \
   --write-kubeconfig-mode=644
 ```
 
@@ -41,7 +41,9 @@ server: Indica que este nó será o servidor (master) do cluster.
 
 --kubelet-arg="kube-reserved=cpu=500m,memory=512Mi": Reserva recursos para os próprios componentes do Kubernetes (kubelet, container runtime, etc.). Mantém o kubelet funcionando mesmo sob carga.
 
---kubelet-arg="max-pods=10": Limita o número total de pods neste nó. Reduz o consumo de IPs e evita sobrecarga em hardware limitado (como um notebook antigo).
+--kubelet-arg="max-pods=50": Define o número máximo de pods permitidos no nó. O valor 50 é suficiente para acomodar os pods do sistema (~6), da aplicação (2) e do Argo CD (7), com folga para expansão futura (ex.: stack de observabilidade).
+
+--kubelet-arg="max-pods=10": (versão anterior) Limitava a 10 pods, o que impedia a instalação de ferramentas como o Argo CD (que adiciona 7 pods sozinho). Se precisar ajustar após a instalação, edite /etc/systemd/system/k3s.service, altere o valor e reinicie: sudo sed -i 's/max-pods=10/max-pods=50/' /etc/systemd/system/k3s.service && sudo systemctl daemon-reload && sudo systemctl restart k3s
 
 --write-kubeconfig-mode=644: Permite que o usuário comum leia o arquivo kubeconfig (/etc/rancher/k3s/k3s.yaml). Necessário para executar comandos kubectl sem sudo.
 ```
