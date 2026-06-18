@@ -145,6 +145,6 @@ Sempre teste comandos de exclusão e reinicialização em um ambiente de desenvo
 
 ## ✅ Próximo passo
 
-Com as práticas de manutenção dominadas, vamos consolidar o estado atual do cluster e apresentar um roteiro de diagnóstico rápido:
+Com as práticas de manutenção dominadas, vamos implementar GitOps com Argo CD:
 
-👉 [10-status-atual.md](10-status-atual.md)
+👉 [10-gitops-argo-cd.md](10-gitops-argo-cd.md)

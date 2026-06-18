@@ -1,0 +1,36 @@
+# Argo CD Ingress com TLS (auto-assinado)
+#
+# O Secret argocd-tls é criado manualmente (não versionado):
+#   openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
+#     -subj "/CN=argocd.192.168.1.200.nip.io" \
+#     -keyout /tmp/argocd-tls.key -out /tmp/argocd-tls.crt
+#   kubectl create secret tls argocd-tls -n argocd \
+#     --cert=/tmp/argocd-tls.crt --key=/tmp/argocd-tls.key
+#   rm /tmp/argocd-tls.crt /tmp/argocd-tls.key
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: argocd-server-transport
+  namespace: argocd
+spec:
+  insecureSkipVerify: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`argocd.192.168.1.200.nip.io`)
+      kind: Rule
+      services:
+        - name: argocd-server
+          port: 443
+          scheme: https
+          serversTransport: argocd-server-transport
+  tls:
+    secretName: argocd-tls

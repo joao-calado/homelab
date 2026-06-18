@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: homelab
+  namespace: argocd
+  description: Projeto para aplicações do homelab
+spec:
+  description: Projeto para aplicações do homelab
+  sourceRepos:
+    - 'https://github.com/joao-calado/homelab.git'
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: 'Namespace'
+    - group: 'networking.k8s.io'
+      kind: 'Ingress'
+    - group: 'traefik.containo.us'
+      kind: 'IngressRoute'
+    - group: 'traefik.containo.us'
+      kind: 'ServersTransport'
+    - group: 'traefik.containo.us'
+      kind: 'Middleware'
+    - group: 'traefik.containo.us'
+      kind: 'TLSOption'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  signatureKeys: []
+  orphanedResources:
+    warn: true
