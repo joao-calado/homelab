@@ -50,6 +50,15 @@ Saída esperada (exemplo):
 quay.io/argoproj/argocd:v2.14.0
 ```
 
+5. Habilitar modo `--insecure` no servidor (necessário para CLI via Traefik):
+
+```sh
+kubectl patch deployment argocd-server -n argocd \
+  --type='json' \
+  -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--insecure"}]'
+kubectl rollout status deployment argocd-server -n argocd
+```
+
 ---
 
 ## 10.2. Clonar o repositório no servidor
@@ -158,7 +167,7 @@ sudo chmod +x /usr/local/bin/argocd
 1. Aguardar o IngressRoute ser criado pelo bootstrap:
 
 ```sh
-kubectl wait --for=condition=ready ingressroute argocd-server -n argocd --timeout=120s
+until kubectl get ingressroute argocd-server -n argocd &>/dev/null; do sleep 3; done && echo "IngressRoute ativo"
 ```
 
 2. Obter a senha inicial:
@@ -176,7 +185,7 @@ argocd login argocd.192.168.1.200.nip.io --username admin --password '<SENHA>' -
 4. Registrar o cluster:
 
 ```sh
-argocd cluster add $(kubectl config current-context) --name in-cluster
+argocd cluster add $(kubectl config current-context) --name in-cluster --kubeconfig /etc/rancher/k3s/k3s.yaml
 ```
 
 5. Saída esperada:
