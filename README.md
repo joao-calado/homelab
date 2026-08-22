@@ -44,6 +44,7 @@ Este repositório documenta **passo a passo** a construção de um laboratório 
 9. [Manutenção do cluster](docs/09-manutencao.md) – escala, restart, limpeza.
 10. [GitOps com Argo CD](docs/10-gitops-argo-cd.md) – instalação do Argo CD, App of Apps e exposição da UI com TLS.
 11. [Estado atual e diagnóstico](docs/11-status-atual.md) – fluxo de requisição e troubleshooting.
+12. [Kubernetes Dashboard via GitOps](docs/12-kubernetes-dashboard.md) – Dashboard oficial gerenciado pelo Argo CD.
 
 ---
 
