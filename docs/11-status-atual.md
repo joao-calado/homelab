@@ -259,16 +259,13 @@ Este guia foi testado em um notebook com Debian 13, 4 vCPUs, 8 GB RAM e Wi-Fi Re
 
 Você concluiu a configuração do homelab com **GitOps via Argo CD**! Os projetos futuros incluem:
 
-**1. Kubernetes Dashboard**  
-Instalar o Dashboard oficial via Argo CD para monitoramento visual.
-
-**2. StockMemo – Gestor de Inventário e Ordens de Serviço**  
+**1. StockMemo – Gestor de Inventário e Ordens de Serviço**  
 Aplicação Ruby on Rails para pequenas oficinas (clientes/equipamentos, controle de peças, cálculo de markup, histórico OS, PDF, auditoria).
 
-**3. Pipeline CI/CD com GitHub Actions**  
+**2. Pipeline CI/CD com GitHub Actions**  
 Automação: push → build Docker → Docker Hub → deploy automático no K3s via Argo CD.
 
-**4. Stack de observabilidade (Prometheus + Loki + Grafana)**  
+**3. Stack de observabilidade (Prometheus + Loki + Grafana)**  
 Métricas do cluster, logs centralizados e dashboards unificados.
 
 **Obrigado por seguir este guia!**

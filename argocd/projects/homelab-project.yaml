@@ -23,6 +23,10 @@ spec:
       kind: 'Middleware'
     - group: 'traefik.io'
       kind: 'TLSOption'
+    - group: 'rbac.authorization.k8s.io'
+      kind: 'ClusterRole'
+    - group: 'rbac.authorization.k8s.io'
+      kind: 'ClusterRoleBinding'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

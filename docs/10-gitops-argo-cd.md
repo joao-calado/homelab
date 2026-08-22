@@ -81,19 +81,23 @@ cd homelab
 
 > **Nota:** os arquivos abaixo já estão versionados no repositório. Ao clonar em 10.3, você já os tem disponíveis — nenhuma ação manual de criação é necessária.
 
-Dentro do diretório `~/homelab`, a estrutura abaixo define **5 arquivos** que o Argo CD usará para gerenciar tudo:
+Dentro do diretório `~/homelab`, a estrutura abaixo define os arquivos que o Argo CD usará para gerenciar tudo:
 
 ```
 homelab/
 ├── argocd/
 │   ├── applications/
-│   │   ├── argocd-ingress.yaml                   # IngressRoute (Secret criado manualmente)
-│   │   └── web-server-argocd-application.yaml    # Application → manifests/ → ns default
+│   │   ├── argocd-ingress.yaml                          # IngressRoute (Secret criado manualmente)
+│   │   ├── homelab-project-app.yaml                     # Application → projects/ → AppProject
+│   │   ├── kubernetes-dashboard-argocd-application.yaml # Application → infrastructure/dashboard/
+│   │   └── web-server-argocd-application.yaml           # Application → manifests/ → ns default
 │   ├── projects/
-│   │   └── homelab-project.yaml                  # Permissões (repositórios, CRDs Traefik)
-│   └── root-app.yaml                            # Application of Applications (bootstrap)
+│   │   └── homelab-project.yaml                         # Permissões (repositórios, CRDs Traefik, RBAC)
+│   └── root-app.yaml                                   # Application of Applications (bootstrap)
+├── infrastructure/
+│   └── dashboard/                                       # Kubernetes Dashboard (GitOps)
 └── manifests/
-    └── app.yaml                                  # Deployment (replicas:1) + Service + Ingress
+    └── app.yaml                                         # Deployment (replicas:2) + Service + Ingress
 ```
 
 ### 10.3.1. AppProject (`argocd/projects/homelab-project.yaml`)
